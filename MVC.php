@@ -1,7 +1,13 @@
 <?php
 
+/**
+ * MVC.php
+ * @author Fábio Nogueira
+ * @version 0.0.3
+ */
+
 error_reporting(E_ALL & ~E_NOTICE);
-define('MVC_VERSION', '0.9.2');
+define('MVC_VERSION', '0.0.2');
 
 class MVC{
     private static $_config = array();
@@ -14,19 +20,18 @@ class MVC{
             'tostring'  => 'MVC Version '.MVC_VERSION . "\nCopyright (c) 2014, DTEC. All rights reserved."
         ));
     }
-    
     private static function routerError($err_message){
-        $template = self::$_config['template'];
+        $templates = self::$_config['templates'];
+        $name      = isset($templates["error"]) ? $templates["error"] : $templates["default"].'_error';
         
-        if ( file_exists(ROOT.'template/'.$template.'_error.php') ){
-            require ROOT.'template/'.$template.'_error.php';
+        if ( file_exists(ROOT.'template/'.$name.'.php') ){
+            require ROOT.'template/'.$name.'.php';
             exit;
         }else{
             exit ("router error! <b>$err_message</b>" );
         }
         exit;
     }
-    
     private static function splitUrl(){
         self::$_url = array();
         
@@ -48,11 +53,6 @@ class MVC{
         self::$_url['parameter_2'] = (isset($arr[3]) ? $arr[3] : null);
         self::$_url['parameter_3'] = (isset($arr[4]) ? $arr[4] : null);
     }
-    
-    public static function getParameter($index){
-        return self::$_url['parameter_'.$index];
-    }
-
     private static function controllerInstance($controllerClassName, $modelClassName=NULL){
         require ROOT . self::$_config['controllerPath'] . $controllerClassName.'.php';
         
@@ -70,13 +70,13 @@ class MVC{
         
         return $instance;
     }
-    
     private static function runController($instance, $actionName){
-        $template    = self::$_config['template'];
+        $templates   = self::$_config['templates'];
         $parameter_1 = self::$_url['parameter_1'];
         $parameter_2 = self::$_url['parameter_2'];
         $parameter_3 = self::$_url['parameter_3'];
         $view        = $instance->view;
+        $controller  = self::$_url['controller'];
         
         if (isset($instance->model)){
             $view->model = $instance->model;
@@ -102,14 +102,17 @@ class MVC{
         
         //carrega o template
         if (!self::$_config['ajax']){
-            require ROOT.'template/'.$template.'.php';
+            $name = isset($templates[$controller]) ? $templates[$controller] : $templates["default"];
+            require ROOT.'template/'.$name.'.php';
         }
-    }
+    }    
     
+    public static function getParameter($index){
+        return self::$_url['parameter_'.$index];
+    }
     public static function getConfig(){
         return self::$_config;
     }
-    
     public static function config($config, &$level=NULL){
         foreach ($config as $key=>$value){
             if (is_array($value)){
@@ -127,7 +130,6 @@ class MVC{
             }
         }
     }
-    
     public static function run(){
         //define algumas constantes úteis
         define('TEMPLATE', self::$_config['template']);
@@ -141,7 +143,6 @@ class MVC{
         }
         
         //carrega classes do core
-        require __DIR__.'/Model.php';
         require __DIR__.'/View.php';
         require __DIR__.'/Controller.php';
         
@@ -155,6 +156,10 @@ class MVC{
         }else{
             if (!file_exists(ROOT.'model/' . $modelClassName . '.php')){
                 $modelClassName = NULL;
+            }
+            
+            if (!is_null($modelClassName)){
+                require __DIR__.'/Model.php';
             }
             
             if (self::$_config['ajax'] && function_exists("ajax_bootstrap") ){

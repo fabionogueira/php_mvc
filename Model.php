@@ -9,7 +9,6 @@ class Model {
     protected $db;
     
     function __construct($config) {
-        $this->db = new DB();
-        $this->db->config($config);
+        $this->db = new DB($config);
     }
 }
