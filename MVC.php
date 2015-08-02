@@ -3,11 +3,16 @@
 /**
  * MVC.php
  * @author Fábio Nogueira
- * @version 0.0.3
+ * @version 0.0.4
  */
 
 error_reporting(E_ALL & ~E_NOTICE);
-define('MVC_VERSION', '0.0.2');
+define('MVC_VERSION', '0.0.4');
+
+//carrega classes do core
+require __DIR__.'/Session.php';
+require __DIR__.'/View.php';
+require __DIR__.'/Controller.php';
 
 class MVC{
     private static $_config = array();
@@ -113,27 +118,15 @@ class MVC{
     public static function getConfig(){
         return self::$_config;
     }
-    public static function config($config, &$level=NULL){
-        foreach ($config as $key=>$value){
-            if (is_array($value)){
-                self::$_config[$key] = (isset(self::$_config[$key]) ? self::$_config[$key] : array());
-                self::config($value, self::$_config[$key]);
-            }else{
-                if (is_null($level)){
-                    self::$_config[$key] = $value;
-                }else{
-                    if (!is_array($level)){
-                        $level = array();
-                    }
-                    $level[$key] = $value;
-                }
-            }
-        }
+    public static function config($config){
+        self::$_config = array_merge_recursive(self::$_config, $config);
     }
     public static function run(){
+        $cfg = self::$_config;
+        
         //define algumas constantes úteis
-        define('TEMPLATE', self::$_config['template']);
-        define('BASE_URL', self::$_config['url']['base']);
+        define('TEMPLATE', $cfg['template']);
+        define('BASE_URL', $cfg['url']['base']);
         
         //separa a url em controller, action e parâmetros
         self::splitUrl();
@@ -142,16 +135,12 @@ class MVC{
             self::info();
         }
         
-        //carrega classes do core
-        require __DIR__.'/View.php';
-        require __DIR__.'/Controller.php';
-        
-        $controllerClassName = self::$_url['controller']=='' ? 'MainController' : ucfirst(self::$_url['controller'] . self::$_config['controllerSufix']);
+        $controllerClassName = self::$_url['controller']=='' ? 'MainController' : ucfirst(self::$_url['controller'] . $cfg['controllerSufix']);
         $modelClassName      = self::$_url['controller']=='' ? 'MainModel' : ucfirst(self::$_url['controller'] . 'Model');
         $actionName          = self::$_url['action'];
         
         //se o arquivo do controller não existe
-        if (!file_exists(ROOT. self::$_config['controllerPath'] . $controllerClassName . '.php')) {
+        if (!file_exists(ROOT.$cfg['controllerPath'] . $controllerClassName . '.php')) {
             self::routerError('controller not found');
         }else{
             if (!file_exists(ROOT.'model/' . $modelClassName . '.php')){
@@ -162,7 +151,7 @@ class MVC{
                 require __DIR__.'/Model.php';
             }
             
-            if (self::$_config['ajax'] && function_exists("ajax_bootstrap") ){
+            if ($cfg['ajax'] && function_exists("ajax_bootstrap") ){
                 ajax_bootstrap();
             }
             
