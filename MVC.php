@@ -10,9 +10,9 @@ error_reporting(E_ALL & ~E_NOTICE);
 define('MVC_VERSION', '0.0.4');
 
 //carrega classes do core
-require __DIR__.'/Session.php';
-require __DIR__.'/View.php';
-require __DIR__.'/Controller.php';
+require __DIR__.'/Session.php';    //{{Session.php}}
+require __DIR__.'/View.php';       //{{View.php}}
+require __DIR__.'/Controller.php'; //{{Controller.php}}
 
 class MVC{
     private static $_config = array();

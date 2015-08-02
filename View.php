@@ -5,7 +5,6 @@ class View {
     protected $_data = array();
     protected $_withTemplate = true;
 
-
     public $content = "";
     
     public function __construct($file) {
