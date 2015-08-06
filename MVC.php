@@ -148,7 +148,7 @@ class MVC{
             }
             
             if (!is_null($modelClassName)){
-                require __DIR__.'/Model.php';
+                require_once __DIR__.'/Model.php';
             }
             
             if ($cfg['ajax'] && function_exists("ajax_bootstrap") ){
