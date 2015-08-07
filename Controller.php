@@ -4,6 +4,11 @@
 class Controller {
     private $model;
     public $view;
+    
+    public function redirect($url) {
+        header('location:'.BASE_URL.'/'.$url);
+        exit;
+    }
 }
 
 //controlador para requisição ajax

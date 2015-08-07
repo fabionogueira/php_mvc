@@ -34,6 +34,7 @@ class View {
         
         ob_start();
             if ($this->_withTemplate){
+                $view = $this;
                 include($this->_file);
             }
             $this->content = ob_get_contents();

@@ -3,11 +3,11 @@
 /**
  * MVC.php
  * @author Fábio Nogueira
- * @version 0.0.4
+ * @version 0.0.6
  */
 
 error_reporting(E_ALL & ~E_NOTICE);
-define('MVC_VERSION', '0.0.4');
+define('MVC_VERSION', '0.0.6');
 
 //carrega classes do core
 require __DIR__.'/Session.php';    //{{Session.php}}
